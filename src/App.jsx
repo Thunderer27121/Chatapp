@@ -123,8 +123,8 @@ function App() {
               Welcome Back
             </h2>
             <p style={{ margin: "0.5rem 0 0", color: "#6b7280", fontSize: "0.95rem" }}>
-              Enter your username to continue
-              <span style={{color : "red"}}>choose from Inderjeet singh, Prashant, Shubham or Yamank only</span>
+              Enter your username to continue <br />
+              <span style={{color : "red"}}>Hint :- choose from Inderjeet singh, Prashant, Shubham or Yamank only</span>
             </p>
           </div>
           <input
