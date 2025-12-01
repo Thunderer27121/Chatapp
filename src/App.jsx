@@ -124,6 +124,7 @@ function App() {
             </h2>
             <p style={{ margin: "0.5rem 0 0", color: "#6b7280", fontSize: "0.95rem" }}>
               Enter your username to continue
+              <span style={{color : "red"}}>choose from Inderjeet singh, Prashant, Shubham or Yamank only</span>
             </p>
           </div>
           <input
@@ -134,7 +135,7 @@ function App() {
                 handleSaveName();
               }
             }}
-            placeholder="choose from Inderjeet singh, Prashant, Shubham or Yamank only"
+            placeholder="..."
             style={{
               width: "100%",
               padding: "0.875rem 1rem",
