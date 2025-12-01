@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import ContactList from "./components/ContactList";
 import ChatWindow from "./components/ChatWindow";
 
@@ -6,14 +6,13 @@ let contacts = [
   { id: 1, name: "Shubham" },
   { id: 2, name: "Prashant" },
   { id: 3, name: "Yamank" },
-  { id: 4, name : "Inderjeet singh"}
+  { id: 4, name: "Inderjeet Singh" }
 ];
-
-const STORAGE_KEY = "chat_username_v2";
 
 const initialState = {
   currentUser: "",
   selectedContact: contacts[0],
+  isMobileMenuOpen: false,
 };
 
 function appReducer(state, action) {
@@ -21,7 +20,11 @@ function appReducer(state, action) {
     case "SET_USER":
       return { ...state, currentUser: action.payload };
     case "SELECT_CONTACT":
-      return { ...state, selectedContact: action.payload };
+      return { ...state, selectedContact: action.payload, isMobileMenuOpen: false };
+    case "TOGGLE_MOBILE_MENU":
+      return { ...state, isMobileMenuOpen: !state.isMobileMenuOpen };
+    case "CLOSE_MOBILE_MENU":
+      return { ...state, isMobileMenuOpen: false };
     default:
       return state;
   }
@@ -29,24 +32,22 @@ function appReducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { currentUser, selectedContact } = state;
-
+  const { currentUser, selectedContact, isMobileMenuOpen } = state;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && !currentUser) {
-      dispatch({ type: "SET_USER", payload: saved });
-    }
-  }, [currentUser]);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  const handleSaveName = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const input = form.elements.username;
-    const name = input.value.trim();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleSaveName = () => {
+    const name = username.trim();
     if (!name) return;
-
-    localStorage.setItem(STORAGE_KEY, name);
     dispatch({ type: "SET_USER", payload: name });
   };
 
@@ -54,46 +55,55 @@ function App() {
     dispatch({ type: "SELECT_CONTACT", payload: contact });
   };
 
-if(currentUser){
-  contacts = contacts.filter((c)=>c.name != currentUser);
-}
+  const handleToggleMobileMenu = () => {
+    dispatch({ type: "TOGGLE_MOBILE_MENU" });
+  };
+
+  const handleCloseMobileMenu = () => {
+    dispatch({ type: "CLOSE_MOBILE_MENU" });
+  };
+
+  const filteredContacts = currentUser
+    ? contacts.filter((c) => c.name !== currentUser)
+    : contacts;
 
   if (!currentUser) {
     return (
       <div
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          padding: isMobile ? "1rem" : "2rem",
         }}
       >
-        <form
-          onSubmit={handleSaveName}
+        <div
           style={{
-            padding: "3rem 2.5rem",
+            padding: isMobile ? "2rem 1.5rem" : "3rem 2.5rem",
             borderRadius: "24px",
             background: "rgba(255, 255, 255, 0.95)",
             backdropFilter: "blur(10px)",
-            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)",
-            minWidth: "380px",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+            width: "100%",
+            maxWidth: "380px",
             animation: "slideUp 0.5s ease-out",
           }}
         >
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <div
               style={{
-                width: "80px",
-                height: "80px",
+                width: isMobile ? "70px" : "80px",
+                height: isMobile ? "70px" : "80px",
                 margin: "0 auto 1rem",
                 borderRadius: "50%",
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "2.5rem",
+                fontSize: isMobile ? "2.25rem" : "2.5rem",
                 boxShadow: "0 8px 16px rgba(102, 126, 234, 0.4)",
               }}
             >
@@ -102,7 +112,7 @@ if(currentUser){
             <h2
               style={{
                 margin: 0,
-                fontSize: "1.75rem",
+                fontSize: isMobile ? "1.5rem" : "1.75rem",
                 fontWeight: "700",
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 WebkitBackgroundClip: "text",
@@ -117,7 +127,13 @@ if(currentUser){
             </p>
           </div>
           <input
-            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSaveName();
+              }
+            }}
             placeholder="e.g. Alice, Bob"
             style={{
               width: "100%",
@@ -140,7 +156,7 @@ if(currentUser){
             }}
           />
           <button
-            type="submit"
+            onClick={handleSaveName}
             style={{
               width: "100%",
               padding: "0.875rem 1rem",
@@ -154,18 +170,10 @@ if(currentUser){
               transition: "all 0.3s ease",
               boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
             }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 6px 20px rgba(102, 126, 234, 0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
-            }}
           >
             Continue
           </button>
-        </form>
+        </div>
         <style>{`
           @keyframes slideUp {
             from {
@@ -189,14 +197,33 @@ if(currentUser){
         height: "100vh",
         background: "#f8f9fa",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        overflow: "hidden",
       }}
     >
-      <ContactList
-        contacts={contacts}
-        selectedContact={selectedContact}
-        onSelectContact={handleSelectContact}
+      {!isMobile && (
+        <ContactList
+          contacts={filteredContacts}
+          selectedContact={selectedContact}
+          onSelectContact={handleSelectContact}
+          isMobile={false}
+        />
+      )}
+      {isMobile && (
+        <ContactList
+          contacts={filteredContacts}
+          selectedContact={selectedContact}
+          onSelectContact={handleSelectContact}
+          isMobile={true}
+          isOpen={isMobileMenuOpen}
+          onClose={handleCloseMobileMenu}
+        />
+      )}
+      <ChatWindow
+        currentUser={currentUser}
+        contact={selectedContact}
+        isMobile={isMobile}
+        onMenuToggle={handleToggleMobileMenu}
       />
-      <ChatWindow currentUser={currentUser} contact={selectedContact} />
     </div>
   );
 }

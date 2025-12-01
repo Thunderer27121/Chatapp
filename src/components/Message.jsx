@@ -1,15 +1,15 @@
-function Message({ message, isOwn }) {
+function Message({ message, isOwn, isMobile }) {
   return (
     <div
       style={{
         alignSelf: isOwn ? "flex-end" : "flex-start",
-        maxWidth: "70%",
+        maxWidth: isMobile ? "85%" : "70%",
         animation: "messageSlide 0.3s ease-out",
       }}
     >
       <div
         style={{
-          padding: "0.75rem 1rem",
+          padding: isMobile ? "0.625rem 0.875rem" : "0.75rem 1rem",
           borderRadius: isOwn ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
           background: isOwn
             ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
@@ -23,6 +23,7 @@ function Message({ message, isOwn }) {
           border: isOwn ? "none" : "1px solid #f3f4f6",
         }}
       >
+        {/* Sender name (for received messages) */}
         {!isOwn && (
           <div
             style={{
@@ -36,15 +37,19 @@ function Message({ message, isOwn }) {
             {message.senderName}
           </div>
         )}
+
+        {/* Message text */}
         <div
           style={{
-            fontSize: "0.95rem",
+            fontSize: isMobile ? "0.9rem" : "0.95rem",
             lineHeight: "1.5",
             wordBreak: "break-word",
           }}
         >
           {message.text}
         </div>
+
+        {/* Timestamp and read status */}
         <div
           style={{
             fontSize: "0.7rem",
@@ -61,11 +66,10 @@ function Message({ message, isOwn }) {
             hour: "2-digit",
             minute: "2-digit",
           })}
-          {isOwn && (
-            <span style={{ fontSize: "0.875rem" }}>✓✓</span>
-          )}
+          {isOwn && <span style={{ fontSize: "0.875rem" }}>✓✓</span>}
         </div>
       </div>
+
       <style>{`
         @keyframes messageSlide {
           from {

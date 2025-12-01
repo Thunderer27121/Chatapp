@@ -3,14 +3,14 @@ import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { useMemo, useCallback } from "react";
 
-function ChatWindow({ currentUser, contact }) {
+function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
   const { isLoading, error, data } = db.useQuery({
-    messages: {},   
+    messages: {},
   });
 
   const allMessages = data?.messages || [];
 
-    const messages = useMemo(() => {
+  const messages = useMemo(() => {
     return allMessages
       .filter((m) => {
         if (!m) return false;
@@ -41,7 +41,6 @@ function ChatWindow({ currentUser, contact }) {
   );
 
   if (error) {
-    
     console.error("InstantDB error in ChatWindow:", error);
   }
 
@@ -53,11 +52,13 @@ function ChatWindow({ currentUser, contact }) {
         flexDirection: "column",
         background: "#ffffff",
         position: "relative",
+        width: isMobile ? "100%" : "auto",
       }}
     >
+      {/* Header */}
       <header
         style={{
-          padding: "1.25rem 1.5rem",
+          padding: isMobile ? "1rem 1rem" : "1.25rem 1.5rem",
           borderBottom: "1px solid #e5e7eb",
           background: "white",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
@@ -67,16 +68,39 @@ function ChatWindow({ currentUser, contact }) {
           zIndex: 10,
         }}
       >
+        {/* Mobile menu button */}
+        {isMobile && (
+          <button
+            onClick={onMenuToggle}
+            style={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              border: "none",
+              color: "white",
+              fontSize: "1.25rem",
+              padding: "0.5rem",
+              borderRadius: "12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+            }}
+          >
+            ☰
+          </button>
+        )}
+
+        {/* Contact avatar */}
         <div
           style={{
-            width: "48px",
-            height: "48px",
+            width: isMobile ? "42px" : "48px",
+            height: isMobile ? "42px" : "48px",
             borderRadius: "50%",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "1.25rem",
+            fontSize: isMobile ? "1.1rem" : "1.25rem",
             fontWeight: "600",
             color: "white",
             boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
@@ -84,11 +108,13 @@ function ChatWindow({ currentUser, contact }) {
         >
           {contact.name.charAt(0).toUpperCase()}
         </div>
+
+        {/* Contact info */}
         <div style={{ flex: 1 }}>
           <h2
             style={{
               margin: 0,
-              fontSize: "1.25rem",
+              fontSize: isMobile ? "1.1rem" : "1.25rem",
               fontWeight: "600",
               color: "#1f2937",
             }}
@@ -119,10 +145,11 @@ function ChatWindow({ currentUser, contact }) {
         </div>
       </header>
 
+      {/* Messages area */}
       <div
         style={{
           flex: 1,
-          padding: "1.5rem",
+          padding: isMobile ? "1rem" : "1.5rem",
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
@@ -130,6 +157,7 @@ function ChatWindow({ currentUser, contact }) {
           background: "linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%)",
         }}
       >
+        {/* Loading state */}
         {isLoading && (
           <div
             style={{
@@ -156,11 +184,12 @@ function ChatWindow({ currentUser, contact }) {
           </div>
         )}
 
+        {/* Empty state */}
         {!isLoading && !error && messages.length === 0 && (
           <div
             style={{
               textAlign: "center",
-              padding: "3rem 1rem",
+              padding: isMobile ? "2rem 1rem" : "3rem 1rem",
               color: "#9ca3af",
               display: "flex",
               flexDirection: "column",
@@ -171,20 +200,20 @@ function ChatWindow({ currentUser, contact }) {
           >
             <div
               style={{
-                width: "80px",
-                height: "80px",
+                width: isMobile ? "60px" : "80px",
+                height: isMobile ? "60px" : "80px",
                 borderRadius: "50%",
                 background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "2.5rem",
+                fontSize: isMobile ? "2rem" : "2.5rem",
               }}
             >
               💬
             </div>
             <div>
-              <p style={{ margin: 0, fontSize: "1.125rem", fontWeight: "500", color: "#6b7280" }}>
+              <p style={{ margin: 0, fontSize: isMobile ? "1rem" : "1.125rem", fontWeight: "500", color: "#6b7280" }}>
                 No messages yet
               </p>
               <p style={{ margin: "0.5rem 0 0", fontSize: "0.95rem" }}>
@@ -194,16 +223,19 @@ function ChatWindow({ currentUser, contact }) {
           </div>
         )}
 
+        {/* Messages */}
         {!isLoading &&
           !error &&
           messages.map((m) => (
             <Message
-              key={m.id || `${m.senderName}-${m.createdAt}`} 
+              key={m.id || `${m.senderName}-${m.createdAt}`}
               message={m}
               isOwn={m.senderName === currentUser}
+              isMobile={isMobile}
             />
           ))}
 
+        {/* Error state */}
         {error && (
           <div
             style={{
@@ -223,7 +255,8 @@ function ChatWindow({ currentUser, contact }) {
         )}
       </div>
 
-      <MessageInput onSend={handleSend} />
+      {/* Message input */}
+      <MessageInput onSend={handleSend} isMobile={isMobile} />
 
       <style>{`
         @keyframes pulse {
