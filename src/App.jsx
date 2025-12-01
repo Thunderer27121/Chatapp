@@ -134,7 +134,7 @@ function App() {
                 handleSaveName();
               }
             }}
-            placeholder="e.g. Alice, Bob"
+            placeholder="choose from Inderjeet singh, Prashant, Shubham or Yamank only"
             style={{
               width: "100%",
               padding: "0.875rem 1rem",
