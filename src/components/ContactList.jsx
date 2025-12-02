@@ -1,4 +1,4 @@
-function ContactList({ contacts, selectedContact, onSelectContact, isMobile, isOpen, onClose }) {
+function ContactList({ contacts, user ,selectedContact, onSelectContact, isMobile, isOpen, onClose }) {
   return (
     <>
       {/* Mobile backdrop overlay */}
@@ -94,7 +94,7 @@ function ContactList({ contacts, selectedContact, onSelectContact, isMobile, isO
           }}
         >
           {contacts.map((c) => {
-            const isSelected = selectedContact && selectedContact.id === c.id;
+            const isSelected = selectedContact && selectedContact.id === c.id && c.id != user.id ;
             return (
               <li
                 key={c.id}

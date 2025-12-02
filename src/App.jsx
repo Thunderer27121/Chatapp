@@ -11,7 +11,7 @@ let contacts = [
 
 const initialState = {
   currentUser: "",
-  selectedContact: contacts[0],
+  selectedContact: null,
   isMobileMenuOpen: false,
 };
 
@@ -42,6 +42,9 @@ function App() {
     };
 
     window.addEventListener("resize", handleResize);
+    if(currentUser){
+
+    }
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -207,6 +210,7 @@ function App() {
           selectedContact={selectedContact}
           onSelectContact={handleSelectContact}
           isMobile={false}
+          user = {currentUser}
         />
       )}
       {isMobile && (
@@ -217,6 +221,7 @@ function App() {
           isMobile={true}
           isOpen={isMobileMenuOpen}
           onClose={handleCloseMobileMenu}
+          user= {currentUser}
         />
       )}
       <ChatWindow

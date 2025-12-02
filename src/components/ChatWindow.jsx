@@ -17,8 +17,8 @@ function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
         const a = m.senderName;
         const b = m.receiverName;
         return (
-          (a === currentUser && b === contact.name) ||
-          (a === contact.name && b === currentUser)
+          (a === currentUser && b === contact?.name) ||
+          (a === contact?.name && b === currentUser)
         );
       })
       .sort((a, b) => {
@@ -26,7 +26,7 @@ function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
         const t2 = typeof b.createdAt === "number" ? b.createdAt : 0;
         return t1 - t2;
       });
-  }, [allMessages, currentUser, contact.name]);
+  }, [allMessages, currentUser, contact?.name]);
 
   const handleSend = useCallback(
     async (text) => {
@@ -37,7 +37,7 @@ function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
         receiverName: contact.name,
       });
     },
-    [currentUser, contact.name]
+    [currentUser, contact?.name]
   );
 
   if (error) {
@@ -106,7 +106,7 @@ function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
             boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
           }}
         >
-          {contact.name.charAt(0).toUpperCase()}
+          {contact?.name.charAt(0).toUpperCase()}
         </div>
 
         {/* Contact info */}
@@ -119,7 +119,7 @@ function ChatWindow({ currentUser, contact, isMobile, onMenuToggle }) {
               color: "#1f2937",
             }}
           >
-            {contact.name}
+            {currentUser !== contact && contact?.name}
           </h2>
           <div
             style={{
